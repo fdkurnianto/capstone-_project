@@ -1,0 +1,14 @@
+"PN";"Nama Karyawan";"Jabatan";"Gender";"Pendidikan";"Asal Kota"
+"141";"John Petrucci";"CEO";"Male";"Doctor";"Jakarta"
+"129";"John Lennon";"CE";"Male";"Master";"Jakarta"
+"183";"Gugun Blues";"Secretary";"Male";"Bachelor";"Solo"
+"137";"Dewa Budjana";"HRD";"Male";"Bachelor";"Bali"
+"194";"Eros Candra";"Marketing";"Male";"Bachelor";"Yogyakarta"
+
+
+"PN";"Nama Karyawan";"Tanggal Lahir";"Jabatan";"Gender";"Pendidikan";"Asal Kota";"Alamat Domisili";"Tanggal Masuk";"Tanggal Pensiun";"Penghargaan"
+"141";"John Petrucci";datetime.date(1970, 5, 14);"CEO";"Male";"Doctor";"Jakarta";"Sleman, Yogyakarta";datetime.date(1996, 12, 22);datetime.date(2026, 1, 6);"Best CEO 2021"
+"129";"John Lennon";datetime.date(1974, 12, 17);"CE";"Male";"Master";"Jakarta";"Sleman, Yogyakarta";datetime.date(2000, 4, 1);datetime.date(2031, 1, 1);"Best Marketing 2016"
+"183";"Gugun Blues";datetime.date(1976, 7, 29);"Secretary";"Male";"Bachelor";"Solo";"Bantul, Yogyakarta";datetime.date(2000, 9, 19);datetime.date(2030, 1, 8);"-"
+"137";"Dewa Budjana";datetime.date(1975, 2, 2);"HRD";"Male";"Master";"Bali";"Gunung, Yogyakarta";datetime.date(2000, 5, 20);datetime.date(2031, 3, 1);"-"
+"194";"Eros Candra";datetime.date(1979, 3, 22);"Marketing";"Male";"Bachelor";"Yogyakarta";"Sleman, Yogyakarta";datetime.date(1970, 5, 14);datetime.date(2034, 1, 4);"2019 Best Marketing, 2022 Best Marketing"

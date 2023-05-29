@@ -1,0 +1,22 @@
+- cek database ada atau kosong? cek dictionary kosong atau tidak -( done )
+- input karyawan harus tidak bisa numerik ( done ) 
+- cek semua pypi input harus sesuai dengan format
+	gender (done)
+	
+- tanggal lahir, tanggal masuk ---------------- how????? ( done )
+- gender harus male atau female ( done ) 
+- def delete harus menampilkan detail karyawan dulu (done)
+- eror line 153 saat menghapus data karyawan yang baru diinput ( done )
+- menu update harus meyakinkan apakah akan update? ( done ) 
+- dikasih command (done )
+
+file read.me di git
+quick start - cara menjalankan program
+
+rencana : 
+- input pn pada tampilkan data karyawan karena bisa saja nama ada 2 (done)
+- memasukkan data hapus karyawan pada karyawan resign/pensiun
+pada menu delete ditambahi opsi dan dibuat untuk overwrite
+
+- import menggunakan csv
+- menu update keseluruhan data (done)
