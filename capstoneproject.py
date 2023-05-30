@@ -1,9 +1,10 @@
-
 import sys
 import pyinputplus as pypi
-import datetime
+import csv
+import tabulate
+import os
 
-def show(Dict, printFormat, title="\nDaftar Karyawan Existing\n"):
+def show(database, title="\nDaftar Karyawan Existing\n"):
     """_summary_
 
     Args:
@@ -11,6 +12,16 @@ def show(Dict, printFormat, title="\nDaftar Karyawan Existing\n"):
         printFormat (string): format tampilan di prompt
         title (str, optional): judul tampilan. Defaults to "\nDaftar Karyawan Existing\n".
     """
+    # menggambil baris dari index 1 dari database
+    data = list(database.values())[1:]
+    # variabel sementara untuk menyimpan perubahan
+    data1 = []
+    # menggambil columns dari index 0 sampai 5
+    columns1 = columns[:6]
+    # looping untuk menampilkan setiap data index i
+    for i, values in enumerate(data): #[0]
+        data2 = list(database.values())[1:][i][:6]
+        data1.append(data2)
     # Looping untuk memilih sub menu fungsi show 
     while True:
         # pilihan sub menu untuk menampilkan total karyawan, detail karyawan, dan kembali ke menu utama
@@ -19,45 +30,45 @@ def show(Dict, printFormat, title="\nDaftar Karyawan Existing\n"):
         # menampilkan keseluruhan data karyawan
         if response == 'Tampilkan Data Karyawan Keseluruhan':
             print(title) # untuk menampilkan judul
-            # validasi ketersediaan data
-            if len(dictProfilKaryawan) > 1 : 
-                for value in Dict.values():
-                    print(printFormat.format("", *value))
-            elif len(dictProfilKaryawan) < 2 :  
-                print('Maaf data tidak ada')
-                continue
-        # Menampilkan detail salah satu karyawan yang dipilih
+            if data1 == []:
+                # only display columns without any data
+                print(tabulate.tabulate(data1, headers=columns1, tablefmt= "outline"))
+                print("\nData doesn't exist!")
+            else:
+                # print database in tabular format
+                print(tabulate.tabulate(data1, headers=columns1, tablefmt="outline"))
+                print('\n')
+            # Menampilkan detail salah satu karyawan yang dipilih
         elif response == 'Tampilkan Detail Profil Karyawan':
             # input untuk memasukkan nama karyawan yang akan ditampilkan detailnya
             showprofil = pypi.inputStr(prompt='Silahkan masukkan nama lengkap karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[0-9|?#/>,.<:;"!@$%^&*]'])
             # input pn karyawan 
             pnprofil = pypi.inputStr(prompt='Silahkan masukkan PN karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[A-Z|a-z|?#/>,.<:;"!@$%^&*]'])
             # looping untuk validasi ketersediaan data
-            for i, value in enumerate(dictDetailProfilKaryawan.values()):
+            for i, value in enumerate(data):
                 # jika nama yang diinput terdapat pada value database maka akan ditampilkan detail data dari nama karyawan tersebut
                 if showprofil and pnprofil in value:
-                   print(f'''
-                   \nPN: {value[0]}
-                   \nNama Karyawan: {value[1]}
-                   \nTanggal Lahir: {value[2]}
-                   \nJabatan: {value[3]}
-                   \nGender: {value[4]}
-                   \nPendidikan: {value[5]}
-                   \nAsal Kota: {value[6]}
-                   \nAlamat Domisili: {value[7]}
-                   \nTanggal Masuk: {value[8]}
-                   \nTanggal Pensiun: {value[9]}
-                   \nPenghargaan: {value[10]}
-                   \n''')
+                   datadetail = [['PN', data[i][0]],
+                                 ['Nama Karyawan', data[i][1]],
+                                 ['Tanggal Lahir', data[i][2]],
+                                 ['Jabatan', data[i][3]],
+                                 ['Gender', data[i][4]],
+                                 ['Pendidikan', data[i][5]],
+                                 ['Asal Kota', data[i][6]],
+                                 ['Alamat Domisili', data[i][7]],
+                                 ['Tanggal Masuk', data[i][8]],
+                                 ['Tanggal Pensiun', data[i][9]],
+                                 ['Penghargaan', data[i][10]]]
+                   print(tabulate.tabulate(datadetail, headers=['Data','Detail'], tablefmt="outline"))
                    break # untuk menghentikan looping karena sudah menghasilkan true
                 # validasi jika data tidak terdapat pada dictionary
-                elif i == len(dictDetailProfilKaryawan) -1:
+                elif i == len(data) -1:
                     print('Maaf, kombinasi Nama dan PN yang anda masukkan tidak tepat')
         # jika memilih 3 akan diarahkan pada menu utama
         else :
             main()
 
-def input1():
+def input1(database):
     """Fungsi input yang dapat digunakan pada menu menambah 
     karyawan, yang berisi tentang 
     inputan detail data karyawan"""
@@ -75,8 +86,8 @@ def input1():
     blockRegexes=[r'[A-Z|a-z|?#/>,.<:;"!@$%^&*]'])
 
     # untuk mengisikan tanggal lahir karyawan
-    TanggalLahirInput = pypi.inputDate(
-    prompt='Masukkan tanggal lahir karyawan, format YYYY/MM/DD: ')
+    TanggalLahirInput = str(pypi.inputDate(
+    prompt='Masukkan tanggal lahir karyawan, format YYYY/MM/DD: '))
     
     # untuk mengisikan jabatan karyawan
     Jabataninput = pypi.inputStr(
@@ -103,13 +114,13 @@ def input1():
     applyFunc=lambda x: x.title(), blockRegexes= [r'[0-9|?#/>,.<:;"!@$%^&*]'])
 
     # untuk mengisikan tanggal masuk karyawan
-    TanggalMasuk = pypi.inputDate(
-    prompt='Masukkan tanggal masuk karyawan, format YYYY/MM/DD: ')
+    TanggalMasuk = str(pypi.inputDate(
+    prompt='Masukkan tanggal masuk karyawan, format YYYY/MM/DD: '))
     
 
     # untuk mengisikan tanggal pensiun karyawan
-    TanggalPensiun = pypi.inputDate(
-    prompt='Masukkan tanggal pensiun karyawan, format YYYY/MM/DD: ')
+    TanggalPensiun = str(pypi.inputDate(
+    prompt='Masukkan tanggal pensiun karyawan, format YYYY/MM/DD: '))
     
 
     # untuk mengisikan penghargaan karyawan
@@ -118,15 +129,13 @@ def input1():
     applyFunc=lambda x: x.title(), blockRegexes= [r'[?#/>,.<:;"!@$%^&*]'])
 
     # perumpaan keys dari data dictionary dictDetailProfilKaryawan
-    keys1 = str(len(dictDetailProfilKaryawan))
-    # perumpaan keys dari data dictionary dictProfilKaryawan
-    keys2 = str(len(dictProfilKaryawan))
+    keys1 = str(len(database))
     
     # menu input yang berisi akan menyimpan data inputan atau tidak
     response3 = pypi.inputYesNo(prompt='Pastikan data yang anda masukkan sudah benar, apakah akan menyimpan data tersebut? (yes/no): ')
     # jika memilih yes, maka akan dilakukan update pada dictionary dictDetailProfilKaryawan, dictProfilKaryawan
     if response3 == 'yes':
-        dictDetailProfilKaryawan.update({keys1: [PNinput, 
+        database.update({keys1: [PNinput, 
                          namaKaryawan, 
                          TanggalLahirInput, 
                          Jabataninput, 
@@ -137,18 +146,12 @@ def input1():
                          TanggalMasuk, 
                          TanggalPensiun, 
                          Penghargaan]})
-        dictProfilKaryawan.update({keys2: [PNinput, 
-                           namaKaryawan, 
-                           Jabataninput, 
-                           Genderinput, 
-                           Pendidikaninput, 
-                           Asalkotainput]})               
+                     
     # jika tidak makan data yang diinput akan dihapus dan diarahkan pada submenu
     else:
         add()
     
-
-def add():
+def add(database):
     """menu untuk menambahkan data karyawan"""
     choice = ['Tambahkan data karyawan','Kembali ke menu utama']
     response = pypi.inputMenu(choices=choice, numbered=True)
@@ -156,34 +159,39 @@ def add():
     if response == 'Tambahkan data karyawan':
         addkaryawan = pypi.inputStr(prompt='Silahkan masukkan nama karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[0-9|?#/>,.<:;"!@$%^&*]'])
         # looping untuk validasi ketersediaan data
-        for i, value in enumerate(dictDetailProfilKaryawan.copy().values()):
+        for i, value in enumerate(database.values()):
             # validasi apakah nama tersebut sudah tersedia atau belum
             if addkaryawan in value:
                 response1 = pypi.inputYesNo(prompt='Nama karyawan sudah tersedia, apakah tetap akan menambahkan? (yes/no): ')
                 # jika tersedia dan ingin tetap menambahkan makan akan diarahkan untuk mengisi detail data karyawan
                 if response1 == 'yes':
-                    input1()
-                    add()
+                    input1(database)
+                    print('Data sudah berhasil ditambahkan!')
+                    break
                 # jika tidak akan diarahkan pada submenu
                 else :
-                    add()
+                    add(database)
             # validasi jika data tidak terdapat pada dictionary
-            elif i == len(dictDetailProfilKaryawan) -1:
+            elif i == len(database) -1:
                 # memastikan apakah akan tetap menambahkan data karyawan
                 response2 = pypi.inputYesNo(prompt='Data yang anda masukkan belum tersedia, anda akan diarahkan untuk mengisi form (yes/no): ')
                 # jika memilih yes maka akan diarahkan untuk mengisi detail data karyawan
                 if response2 == 'yes':
-                    input1()
-                    add()
+                    input1(database)
+                    add(database)
+                    print('Data sudah berhasil ditambahkan')
                 # jika memilih tidak akan diarahkan pada sub menu
                 else:
-                    add()
+                    add(database)
+        add(database)
     # jika memilih 2 akan diarahkan pada menu utama
     else :
         main()
 
+    return database
             
-def delete():
+def delete(database):
+    data = list(database.values())[1:]
     """fungsi delete untuk menghapus data karyawan"""
     # menu yang tersedia adalah hapus data karyawan dan kembali ke menu utama
     choice = ['Hapus data karyawan','Kembali ke menu utama']
@@ -194,42 +202,55 @@ def delete():
         # input pn karyawan 
         pndelete = pypi.inputStr(prompt='Silahkan masukkan PN karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[A-Z|a-z|?#/>,.<:;"!@$%^&*]'])
         # looping untuk validasi ketersediaan data
-        for i, value in enumerate(dictDetailProfilKaryawan.copy().values()):
+        j = 0 # variabel baru untuk mengganti index ke - i
+        for key, value in database.copy().items():
             # jika nama karyawan tersedia akan menampilkan terlebih dahulu detail nama karyawan
             if delkaryawan and pndelete in value:
-                print(f'''
-                   \nPN: {value[0]}
-                   \nNama Karyawan: {value[1]}
-                   \nTanggal Lahir: {value[2]}
-                   \nJabatan: {value[3]}
-                   \nGender: {value[4]}
-                   \nPendidikan: {value[5]}
-                   \nAsal Kota: {value[6]}
-                   \nAlamat Domisili: {value[7]}
-                   \nTanggal Masuk: {value[8]}
-                   \nTanggal Pensiun: {value[9]}
-                   \nPenghargaan: {value[10]}
-                   \n''')
+                datadetail = [['PN', value[0]],
+                                 ['Nama Karyawan', value[1]],
+                                 ['Tanggal Lahir', value[2]],
+                                 ['Jabatan', value[3]],
+                                 ['Gender', value[4]],
+                                 ['Pendidikan', value[5]],
+                                 ['Asal Kota', value[6]],
+                                 ['Alamat Domisili', value[7]],
+                                 ['Tanggal Masuk', value[8]],
+                                 ['Tanggal Pensiun', value[9]],
+                                 ['Penghargaan', value[10]]]
+                print(tabulate.tabulate(datadetail, headers=['Data','Detail'], tablefmt="outline"))
                 # validasi bahwa data tersebut akan dihapus
-                response2 = pypi.inputYesNo(prompt='Nama karyawan tersebut akan dihapus, apakah anda akan men? (yes/no): ')
+                response2 = pypi.inputYesNo(prompt='Nama karyawan tersebut akan dihapus, apakah anda jadi menghapus? (yes/no): ')
                 # jika memilih yes maka akan menghapus data dari dictionary
-                if response2 == 'yes': 
-                    del dictProfilKaryawan[f'{i}']
-                    del dictDetailProfilKaryawan[f'{i}']
+                if response2 == 'yes':
+                    # handling eror ketika salah masukkan 3x password
+                    try:
+                        password = pypi.inputChoice(prompt='Hanya CEO dan Sekretaris yang bisa menghapus data\nSilahkan masukkan password :  ', 
+                        choices=['Sekre9900', 'CEO12340'], limit= 3)
+                        if password == 'Sekre9900' or 'CEO12340' :
+                            print(f'Data sudah berhasil dihapus!')
+                            del database[key]
+                        else :
+                            break
+                    # jika salah 3x maka akan mengembalikan pada menu delete
+                    except: 
+                        print('Password yang anda masukkan salah 3x!')
+                        delete(database)
                 # jika memilih no maka akan diarahkan pada submenu
                 else :
-                    delete ()
+                    delete (database)
             # jika nama tidak tersedika akan menampilkan data tidak tersedia dan diarahkan pada sub menu
-            elif i == len(dictDetailProfilKaryawan) -1:
+            elif j == len(database)-1:
                 print('Maaf, kombinasi Nama dan PN yang anda masukkan tidak tepat')
-                delete()
+                delete(database)
+            j += 1
+        delete(database)
     # jika memilih 2 maka akan diarahkan pada menu utama
     else :
         main()
 
+    return database
 
-
-def update():
+def update(database):
     """fungsi untuk merubah data karyawan baik sebagian maupun keseluruhan"""
     # pilihan menu fungsi update
     choice = ['Rubah data karyawan','Kembali ke menu utama']
@@ -239,23 +260,23 @@ def update():
         upkaryawan = pypi.inputStr(prompt='Silahkan masukkan nama karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[0-9|?#/>,.<:;"!@$%^&*]'])
         # input pn karyawan 
         pnupdate = pypi.inputStr(prompt='Silahkan masukkan PN karyawan: ', applyFunc=lambda x: x.title(), blockRegexes=[r'[A-Z|a-z|?#/>,.<:;"!@$%^&*]'])
+        j = 0 # variabel baru untuk mengganti index ke - i
         # looping untuk validasi ketersediaan data
-        for i, value in enumerate(dictDetailProfilKaryawan.values()):
+        for key, value in database.copy().items():
             # jika nama karyawan tersedia akan menampilkan terlebih dahulu detail nama karyawan
             if upkaryawan and pnupdate in value:
-                print(f'''
-                   \nPN: {value[0]}
-                   \nNama Karyawan: {value[1]}
-                   \nTanggal Lahir: {value[2]}
-                   \nJabatan: {value[3]}
-                   \nGender: {value[4]}
-                   \nPendidikan: {value[5]}
-                   \nAsal Kota: {value[6]}
-                   \nAlamat Domisili: {value[7]}
-                   \nTanggal Masuk: {value[8]}
-                   \nTanggal Pensiun: {value[9]}
-                   \nPenghargaan: {value[10]}
-                   \n''')
+                datadetail = [['PN', value[0]],
+                                 ['Nama Karyawan', value[1]],
+                                 ['Tanggal Lahir', value[2]],
+                                 ['Jabatan', value[3]],
+                                 ['Gender', value[4]],
+                                 ['Pendidikan', value[5]],
+                                 ['Asal Kota', value[6]],
+                                 ['Alamat Domisili', value[7]],
+                                 ['Tanggal Masuk', value[8]],
+                                 ['Tanggal Pensiun', value[9]],
+                                 ['Penghargaan', value[10]]]
+                print(tabulate.tabulate(datadetail, headers=['Data','Detail'], tablefmt="outline"))
                 # validasi untuk melakukan perubahan
                 response1 = pypi.inputYesNo(prompt='Apa anda akan merubah data karyawan tersebut? (yes/no): ')
                 # jika iya maka akan diarahkan pada data yang ingin dirubah baik sebagian atau keseluruhan
@@ -264,8 +285,8 @@ def update():
                     choice = ['Jabatan', 'Pendidikan', 'Alamat Domisili', 'Penghargaan', 'Update keseluruhan data karyawan', 'Kembali ke menu sebelumnya']
                     response = pypi.inputMenu(prompt = prompt, choices=choice, numbered=True)
                     # looping untuk validasi data 
-                    for j, value in enumerate(dictDetailProfilKaryawan.copy().values()):
-                        k = i
+                    for j, value in enumerate(database.copy().values()):
+                        # k = key
                         # untuk merubah jabatan
                         if response == 'Jabatan':
                             Jabataninput = pypi.inputStr(
@@ -274,13 +295,12 @@ def update():
                             response1 = pypi.inputYesNo(prompt='Pastikan data yang anda masukan benar, apakah tetap akan menyimpan? (yes/no): ')
                             # validasi untuk menyimpan perubahan
                             if response1 == 'yes':
-                                dictDetailProfilKaryawan[f'{k}'][3] = Jabataninput
-                                dictProfilKaryawan[f'{k}'][2] = Jabataninput
+                                database[key][3] = Jabataninput
                                 print(f'Data berhasil dirubah, silahkan cek pada detail data karyawan')
-                                update()
+                                update(database)
                                 break
                             else :
-                                update()
+                                update(database)
                         # untuk merubah pendidikan
                         elif response == 'Pendidikan':
                             Pendidikaninput = pypi.inputStr(
@@ -289,13 +309,12 @@ def update():
                             response2 = pypi.inputYesNo(prompt='Pastikan data yang anda masukan benar, apakah tetap akan menyimpan? (yes/no): ')
                             # validasi untuk menyimpan perubahan
                             if response2 == 'yes':
-                                dictDetailProfilKaryawan[f'{k}'][5] = Pendidikaninput
-                                dictProfilKaryawan[f'{k}'][4] = Pendidikaninput
+                                database[key][5] = Pendidikaninput
                                 print(f'Data berhasil dirubah, silahkan cek pada detail data karyawan')
-                                update()
+                                update(database)
                                 break
                             else :
-                                update()
+                                update(database)
                         # untuk merubah alamat domisili
                         elif response == 'Alamat Domisili':
                             AlamatDomisiliinput = pypi.inputStr(
@@ -304,12 +323,12 @@ def update():
                             response3 = pypi.inputYesNo(prompt='Pastikan data yang anda masukan benar, apakah tetap akan menyimpan? (yes/no): ')
                             # validasi untuk menyimpan perubahan
                             if response3 == 'yes':
-                                dictDetailProfilKaryawan[f'{k}'][7] = AlamatDomisiliinput
+                                database[key][7] = AlamatDomisiliinput
                                 print(f'Data berhasil dirubah, silahkan cek pada detail data karyawan')
-                                update()
+                                update(database)
                                 break
                             else :
-                                update()
+                                update(database)
                         # untuk menambah penghargaan
                         elif response == 'Penghargaan':
                             Penghargaan = pypi.inputStr(
@@ -318,12 +337,12 @@ def update():
                             response4 = pypi.inputYesNo(prompt='Pastikan data yang anda masukan benar, apakah tetap akan menyimpan? (yes/no): ')
                             # validasi untuk menyimpan perubahan
                             if response4 == 'yes':
-                                dictDetailProfilKaryawan[f'{k}'][10] += (f', {Penghargaan}')
+                                database[key][10] += (f', {Penghargaan}')
                                 print(f'Data berhasil dirubah, silahkan cek pada detail data karyawan')
-                                update()
+                                update(database)
                                 break
                             else : 
-                                update()
+                                update(database)
                         # untuk merubah keseluruhan data
                         elif response == 'Update keseluruhan data karyawan' :
                             #untuk menginput data karyawan, dengan x.title : untuk menampilkan 
@@ -381,7 +400,7 @@ def update():
                             # validasi untuk menyimpan perubahan
                             response5 = pypi.inputYesNo(prompt='Pastikan data yang anda masukan benar, apakah tetap akan menyimpan? (yes/no): ')
                             if response5 == 'yes':
-                                dictDetailProfilKaryawan.update({f'{k}': [PNinput, 
+                                database.update({key: [PNinput, 
                                                                 namaKaryawan, 
                                                                 TanggalLahirInput, 
                                                                 Jabataninput, 
@@ -392,67 +411,114 @@ def update():
                                                                 TanggalMasuk, 
                                                                 TanggalPensiun, 
                                                                 Penghargaan]})
-                                dictProfilKaryawan.update({f'{k}': [PNinput, 
-                                                namaKaryawan, 
-                                                Jabataninput, 
-                                                Genderinput, 
-                                                Pendidikaninput, 
-                                                Asalkotainput]})
                                 print('Data sudah tersimpan silahkan cek pada menu tampilkan data')
-                                update()
+                                update(database)
                                 break
                             else :
                                 print('Data yang anda masukkan tidak tersimpan')
-                                update()
+                                update(database)
             # validasi jika nama tidak tersedia                                   
-            elif i == len(dictDetailProfilKaryawan) -1:
+            elif j == len(database)-1:
                 print('Maaf, kombinasi Nama dan PN yang anda masukkan tidak tepat')
-                update()
-    main()
+                update(database)
+            j += 1
+        update(database)
+    else : 
+        main()
+    return database
 
 def main():
+    global db
     while True:
-        # Menampilkan tampilan utama program
-        prompt = f"\t-------Selamat datang!-------\nBerikut Merupakan Data Karyawan PT. Abadi Jaya:\n"
-        # Input fitur yang akan dijalankan
-        choice = ['Tampilkan Data Karyawan', 'Menambahkan Data Karyawan', 'Menghapus Data Karyawan', 'Memperbarui Data Karyawan', 'Exit']
-        response = pypi.inputMenu(prompt=prompt, choices=choice, numbered=True)
-        # Fitur menampilkan daftar karyawan
-        if response == 'Tampilkan Data Karyawan':
-            show(dictProfilKaryawan, printFormat)
-        # Fitur menambahkan karyawan
-        elif response == 'Menambahkan Data Karyawan':
-            add()
-        # Fitur menghapus karyawan
-        elif response == 'Menghapus Data Karyawan':
-            delete()
-        # Fitur memperbarui data karyawan
-        elif response == 'Memperbarui Data Karyawan':
-            update()
-        # Fitur exit program
-        else:
-            sys.exit()
+        while True:
+            try: # ketika try dijalankan dan tidak ada eror apaapun itu, maka exept tidak dijalankan.
+                # Menampilkan tampilan utama program
+                prompt = f"\t-------Selamat datang!-------\nBerikut Merupakan Data Karyawan PT. Abadi Jaya:\n"
+                # Input fitur yang akan dijalankan
+                choice = ['Tampilkan Data Karyawan', 'Menambahkan Data Karyawan', 'Menghapus Data Karyawan', 'Memperbarui Data Karyawan', 'Exit']
+                response = pypi.inputMenu(prompt=prompt, choices=choice, numbered=True)
+                # Fitur menampilkan daftar karyawan
+                if response == 'Tampilkan Data Karyawan':
+                    show(db)
+                # Fitur menambahkan karyawan
+                elif response == 'Menambahkan Data Karyawan':
+                    db = add(db)
+                # Fitur menghapus karyawan
+                elif response == 'Menghapus Data Karyawan':
+                    db = delete(db)
+                # Fitur memperbarui data karyawan
+                elif response == 'Memperbarui Data Karyawan':
+                    db = update(db)
+                # Fitur exit program
+                else:
+                    print('Terima Kasih!')
+                    break
+
+                # membuka database
+                file = open(path, 'w')
+
+                # menyimpan database terbaru
+                writer = csv.writer(file, lineterminator='\n', delimiter=';')
+                columns = list(db.values())[0] # termasuk kolom dan data
+                data = list(db.values())[1:]
+                writer.writerow(columns) #db.values()
+                data = list(db.values())[1:]
+                for i in data:
+                    writer.writerow(i)
+
+            except KeyboardInterrupt:
+                # membuka database
+                file = open(path, 'w')
+
+                # menyimpan database terbaru
+                writer = csv.writer(file, lineterminator='\n', delimiter=';')
+                columns = list(db.values())[0] # termasuk kolom dan data
+                data = list(db.values())[1:]
+                writer.writerow(columns) #db.values()
+                data = list(db.values())[1:]
+                for i in data:
+                    writer.writerow(i)
+
+
+            # close Program
+            file.close()
+
+        # close program
+        sys.exit()
 
 if __name__ == "__main__":
-    # deklarasi Profil karyawan
-    dictProfilKaryawan = {
-        'column' : ["PN", "Nama Karyawan", "Jabatan", "Gender", "Pendidikan", "Asal Kota"],
-        '1' : ["141", "John Petrucci", "CEO", "Male", "Doctor", "Jakarta"],
-        '2' : ["129", "John Lennon", "CE", "Male", "Master", "Jakarta"],
-        '3' : ["183", "Gugun Blues", "Secretary", "Male", "Bachelor", "Solo"],
-        '4' : ["137", "Dewa Budjana", "HRD", "Male", "Bachelor", "Bali"],
-        '5' : ["194", "Eros Candra", "Marketing", "Male", "Bachelor", "Yogyakarta"],
-    }
-    # deklarasi detail profil karyawan
-    dictDetailProfilKaryawan = {
-        'column' : ["PN", "Nama Karyawan","Tanggal Lahir", "Jabatan", "Gender", "Pendidikan", "Asal Kota", "Alamat Domisili", "Tanggal Masuk", "Tanggal Pensiun", "Penghargaan"],
-        '1' : ["141", "John Petrucci", datetime.date(1970, 5, 14), "CEO", "Male", "Doctor", "Jakarta", "Sleman, Yogyakarta", datetime.date(1996, 12, 22), datetime.date(2026, 1, 6), "Best CEO 2021"],
-        '2' : ["129", "John Lennon", datetime.date(1974, 12, 17), "CE", "Male", "Master", "Jakarta", "Sleman, Yogyakarta", datetime.date(2000, 4, 1), datetime.date(2031, 1, 1), "Best Marketing 2016"],
-        '3' : ["183", "Gugun Blues", datetime.date(1976, 7, 29), "Secretary", "Male", "Bachelor", "Solo", "Bantul, Yogyakarta", datetime.date(2000, 9, 19), datetime.date(2030, 1, 8), "-"],
-        '4' : ["137", "Dewa Budjana", datetime.date(1975, 2, 2), "HRD", "Male", "Master", "Bali", "Gunung, Yogyakarta", datetime.date(2000, 5, 20), datetime.date(2031, 3, 1), "-"],
-        '5' : ["194", "Eros Candra", datetime.date(1979, 3, 22), "Marketing", "Male", "Bachelor", "Yogyakarta", "Sleman, Yogyakarta", datetime.date(1970, 5, 14), datetime.date(2034, 1, 4), "2019 Best Marketing, 2022 Best Marketing"],
-    }
-    #deklarasi print format di menu
-    printFormat = "{:<4}" + "{:<15}" * (len(dictProfilKaryawan['column']))
-    # main menu
-    main()
+    path = r'C:\Users\user\Documents\database purwadhika\capstone_project\detailkaryawan.csv'
+
+    if os.path.getsize(path) == 0:
+        print('Database doesnt exist, please enter some data!')
+    else:
+        # Membaca csv file
+        file = open(path, 'r')
+        reader = csv.reader(file, delimiter=';')
+
+        # substitusi column
+        columns = next(reader)
+
+        # make dictionary data type. db as a variable of dictionary data
+        db = {'columns':columns}
+       
+        for i, row in enumerate(reader): # updating dictionary data
+            #print(row[1])
+            db.update({
+                (str(f'{i}')) : [str(row[0]), 
+                        str(row[1]),
+                        str(row[2]), 
+                        str(row[3]),
+                        str(row[4]),
+                        str(row[5]),
+                        str(row[6]),
+                        str(row[7]),
+                        str(row[8]),
+                        str(row[9]),
+                        str(row[10])
+                        ]})
+        # close program
+        file.close()
+
+        # menjalankan main menu
+        main()
