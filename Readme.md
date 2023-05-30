@@ -5,7 +5,7 @@ Database of Company's Employees. A simple aplication to manage the company's emp
 to clone from github, run :
    - mkdir folder
    - cd folder
-   - git clone git@github.c
+   - git clone git@github.com:fdkurnianto/capstone-_project.git
     
  to install requirement with pip, run:
     
