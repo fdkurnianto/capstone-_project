@@ -2,7 +2,7 @@ import sys
 import pyinputplus as pypi
 import csv
 import tabulate
-import os
+import os 
 
 def show(database, title="\nDaftar Karyawan Existing\n"):
     """_summary_
@@ -111,7 +111,7 @@ def input1(database):
     # untuk mengisikan alamat domisili karyawan
     AlamatDomisiliinput = pypi.inputStr(
     prompt='Silahkan masukkan alamat domisili karyawan: ', 
-    applyFunc=lambda x: x.title(), blockRegexes= [r'[0-9|?#/>,.<:;"!@$%^&*]'])
+    applyFunc=lambda x: x.title(), blockRegexes= [r'[0-9|?#/>.<:;"!@$%^&*]'])
 
     # untuk mengisikan tanggal masuk karyawan
     TanggalMasuk = str(pypi.inputDate(
@@ -383,7 +383,7 @@ def update(database):
                             # untuk mengisikan alamat domisili karyawan
                             AlamatDomisiliinput = pypi.inputStr(
                             prompt='Silahkan masukkan alamat domisili karyawan: ', 
-                            applyFunc=lambda x: x.title(), blockRegexes= [r'[0-9|?#/>,.<:;"!@$%^&*]'])
+                            applyFunc=lambda x: x.title(), blockRegexes= [r'[0-9|?#/>.<:;"!@$%^&*]'])
 
                             # untuk mengisikan tanggal masuk karyawan
                             TanggalMasuk = pypi.inputDate(
@@ -430,66 +430,71 @@ def update(database):
 def main():
     global db
     while True:
-        while True:
-            try: # ketika try dijalankan dan tidak ada eror apaapun itu, maka exept tidak dijalankan.
-                # Menampilkan tampilan utama program
-                prompt = f"\t-------Selamat datang!-------\nBerikut Merupakan Data Karyawan PT. Abadi Jaya:\n"
-                # Input fitur yang akan dijalankan
-                choice = ['Tampilkan Data Karyawan', 'Menambahkan Data Karyawan', 'Menghapus Data Karyawan', 'Memperbarui Data Karyawan', 'Exit']
-                response = pypi.inputMenu(prompt=prompt, choices=choice, numbered=True)
-                # Fitur menampilkan daftar karyawan
-                if response == 'Tampilkan Data Karyawan':
-                    show(db)
-                # Fitur menambahkan karyawan
-                elif response == 'Menambahkan Data Karyawan':
-                    db = add(db)
-                # Fitur menghapus karyawan
-                elif response == 'Menghapus Data Karyawan':
-                    db = delete(db)
-                # Fitur memperbarui data karyawan
-                elif response == 'Memperbarui Data Karyawan':
-                    db = update(db)
-                # Fitur exit program
-                else:
-                    print('Terima Kasih!')
-                    break
+        try: # ketika try dijalankan dan tidak ada eror apaapun itu, maka exept tidak dijalankan.
+            # Menampilkan tampilan utama program
+            prompt = f"\t-------Selamat datang!-------\nBerikut Merupakan Data Karyawan PT. Abadi Jaya:\n"
+            # Input fitur yang akan dijalankan
+            choice = ['Tampilkan Data Karyawan', 'Menambahkan Data Karyawan', 'Menghapus Data Karyawan', 'Memperbarui Data Karyawan', 'Exit']
+            response = pypi.inputMenu(prompt=prompt, choices=choice, numbered=True)
+            # Fitur menampilkan daftar karyawan
+            if response == 'Tampilkan Data Karyawan':
+                show(db)
+            # Fitur menambahkan karyawan
+            elif response == 'Menambahkan Data Karyawan':
+                db = add(db)
+            # Fitur menghapus karyawan
+            elif response == 'Menghapus Data Karyawan':
+                db = delete(db)
+            # Fitur memperbarui data karyawan
+            elif response == 'Memperbarui Data Karyawan':
+                db = update(db)
+            # Fitur exit program
+            else:
+                print('Terima Kasih!')
+                
 
-                # membuka database
-                file = open(path, 'w')
+            # membuka database
+            file = open(path, 'w')
 
-                # menyimpan database terbaru
-                writer = csv.writer(file, lineterminator='\n', delimiter=';')
-                columns = list(db.values())[0] # termasuk kolom dan data
-                data = list(db.values())[1:]
-                writer.writerow(columns) #db.values()
-                data = list(db.values())[1:]
-                for i in data:
-                    writer.writerow(i)
+            # menyimpan database terbaru
+            writer = csv.writer(file, lineterminator='\n', delimiter=';')
+            columns = list(db.values())[0] # termasuk kolom dan data
+            data = list(db.values())[1:]
+            writer.writerow(columns) #db.values()
+            data = list(db.values())[1:]
+            for i in data:
+                writer.writerow(i)
+            
+            # close Program
+            file.close()
 
-            except KeyboardInterrupt:
-                # membuka database
-                file = open(path, 'w')
+            # close program
+            sys.exit()
 
-                # menyimpan database terbaru
-                writer = csv.writer(file, lineterminator='\n', delimiter=';')
-                columns = list(db.values())[0] # termasuk kolom dan data
-                data = list(db.values())[1:]
-                writer.writerow(columns) #db.values()
-                data = list(db.values())[1:]
-                for i in data:
-                    writer.writerow(i)
+        except KeyboardInterrupt:
+            # membuka database
+            file = open(path, 'w')
+
+            # menyimpan database terbaru
+            writer = csv.writer(file, lineterminator='\n', delimiter=';')
+            columns = list(db.values())[0] # termasuk kolom dan data
+            data = list(db.values())[1:]
+            writer.writerow(columns) #db.values()
+            data = list(db.values())[1:]
+            for i in data:
+                writer.writerow(i)
 
 
             # close Program
             file.close()
 
-        # close program
-        sys.exit()
+            # close program
+            sys.exit()
 
 if __name__ == "__main__":
     path = r'C:\Users\user\Documents\database purwadhika\capstone_project\detailkaryawan.csv'
 
-    if os.path.getsize(path) == 0:
+    if os.path.getsize(path) == 0: # mengecek jika database tidak tersedia atau kosong
         print('Database doesnt exist, please enter some data!')
     else:
         # Membaca csv file
